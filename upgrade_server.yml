@@ -1,0 +1,80 @@
+---
+- name: Upgrading servers using block, rescue & always
+  hosts: all
+  become: true
+  gather_facts: yes
+  
+  tasks:
+    - name: Upgrade webservers & dbservers
+      
+      block:
+
+        - name: Install Apache for Ubuntu
+          apt:
+            name: apache2 
+            state: present
+          when: ansible_facts['os_family'] == "Debian"
+
+        - name: Install Apache for CentOs
+          yum:
+            name: httpd
+            state: present
+          when: ansible_facts['os_family'] == "RedHat"
+
+        - name: Display an update message
+          debug:
+            msg: Upgrading webservers
+
+        - name: Update dbservers to latest version
+          apt:
+            name: apache2
+            update_cache: yes
+            state: latest
+          when: ansible_facts['os_family'] == "Debian"
+
+        - name: Update webservers to latest version
+          yum:
+            name: httpd
+            update_cache: yes
+            state: latest
+          when: ansible_facts['os_family'] == "RedHat"
+
+      rescue:
+        - name: Display error message that server will be restarted
+          debug:
+            msg: "Upgrade failed. Restarting server to correct issues " 
+
+        - name: Restarting the server if upgrade fails
+          apt:
+            name: apache2  
+          when: ansible_facts['os_family'] == "Debian"
+          notify: Restart apache2
+
+        - name: Restarting the server if upgrade fails
+          yum:
+            name: httpd
+          when: ansible_facts['os_family'] == "RedHat"
+          notify: Restart Httpd
+
+      always:
+        - name: Notify user to reboot after upgrade attempt
+          debug:
+            msg: "Update process has completed, rebooting now..."
+          notify: 
+            - Restart apache2
+            - Restart Httpd
+
+  handlers: 
+        - name: Restart apache2
+          service: 
+            name: apache2
+            state: restarted
+          when: ansible_facts['os_family'] == "Debian"
+
+        - name: Restart Httpd
+          service: 
+            name: httpd
+            state: restarted
+          when: ansible_facts['os_family'] == "RedHat"
+            
+         

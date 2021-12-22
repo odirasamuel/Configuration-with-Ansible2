@@ -1,0 +1,28 @@
+---
+- name: Creating new users for webservers & dbservers
+  hosts: all
+  become: true
+  gather_facts: no
+  
+  tasks:
+    - name: User gets created for webservers
+      user:
+         name: "{{ item }}"
+         comment: "{{ description }}"
+         state: present
+      loop: "{{ ws_username }}"
+      when: " 'webservers' in group_names "
+      notify: Reboot system
+
+    - name: User gets created for dbservers
+      user:
+        name: "{{ item }}"
+        comment: "{{ description }}"
+        state: present 
+      loop: "{{ db_username }}"
+      when: " 'dbservers' in group_names "
+      notify: Reboot system
+
+  handlers:
+    - name: Reboot system
+      reboot:

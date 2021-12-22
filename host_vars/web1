@@ -1,0 +1,9 @@
+#connection variable for web1
+
+ansible_user: centos
+ansible_become: false
+ansible_ssh_host: ec2-3-144-210-64.us-east-2.compute.amazonaws.com
+ansible_ssh_user: centos
+
+
+

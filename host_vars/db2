@@ -1,0 +1,7 @@
+#connection variable for db2
+
+
+ansible_user: ubuntu
+ansible_become: false
+ansible_ssh_host: ec2-18-222-47-99.us-east-2.compute.amazonaws.com
+ansible_ssh_user: ubuntu
